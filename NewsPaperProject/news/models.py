@@ -8,16 +8,15 @@ class Author(models.Model):
     ratingAuthor = models.SmallIntegerField(default=0)
 
     def update_rating(self):
-        postRat = self.post_set.aggregate(postRating=Sum('rating'))
+        postRat = self.post_set.all().aggregate(postRating=Sum('rating'))
         pRat = 0
         pRat += postRat.get('postRating')
 
-        commentRat = self.authorUser.comment_set.aggregate\
-            (commentRating=Sum('rating'))
+        commentRat = self.authorUser.comment_set.all().aggregate(commentRating=Sum('rating'))
         cRat = 0
         cRat += commentRat.get('commentRating')
 
-        self.ratingAuthor = pRat *3 + cRat
+        self.ratingAuthor = pRat * 3 + cRat
         self.save()
 
 
@@ -33,8 +32,7 @@ class Post(models.Model):
         (NEWS, 'Новость'),
         (ARTICLE, 'Статься'),
     )
-    categoryType = models.CharField(max_length=2,
-                                    choices=CATEGORY_CHOICE, default=ARTICLE)
+    categoryType = models.CharField(max_length=2, choices=CATEGORY_CHOICE, default=ARTICLE)
     dateCreation = models.DateTimeField(auto_now_add=True)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
     title = models.CharField(max_length=128)
@@ -55,7 +53,7 @@ class Post(models.Model):
 
 class PostCategory(models.Model):
     postThrough = models.ForeignKey(Post, on_delete=models.CASCADE)
-    categoryThrough = models.ForeignKey(Post, on_delete=models.CASCADE)
+    categoryThrough = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
@@ -73,4 +71,3 @@ class Comment(models.Model):
         self.rating -= 1
         self.save()
 
-    pass
